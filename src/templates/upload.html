@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>open-mocapy</title>
+    <link href="static/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container text-center">
+        <h1>Загрузка файла</h1>
+        <form method=post enctype=multipart/form-data action="api/upload" onsubmit="send(event,this)" >
+          <input type=file name=file>
+          <input class="btn btn-success" id="upload_btn"  type=submit value=Upload>
+        </form>
+    </div>
+
+    <script src="static/bootstrap.bundle.min.js"></script>
+    <script>
+      function send(e,form) {
+        fetch(form.action, {method:'post', body: new FormData(form)})
+        .then(async (response) => {
+          if(response.ok){
+            let r_json = await response.json()
+            // console.log(r_json)
+            // const id = response.json()['id']
+            window.location.href = '/videos/' + r_json['id'] 
+          }
+        })
+
+        e.preventDefault();
+      }
+    </script>
+  </body>
+</html>

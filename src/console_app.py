@@ -2,7 +2,11 @@ import cv2
 import numpy as np
 from video_capturer import VideoCapturer
 
-video_capturer = VideoCapturer('models/yolov5m.onnx', 'models/litehrnet_30_coco_384x288.onnx')
+root_path = 'src/'
+yolo_path = root_path + 'models/yolov5m.onnx'
+hr_path = root_path + 'models/litehrnet_30_coco_384x288.onnx'
+
+video_capturer = VideoCapturer(yolo_path, hr_path)
 video_capturer.Capture('example_videos/movie_001.mp4')
 
 cv2.destroyAllWindows()

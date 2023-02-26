@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>open-mocapy</title>
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container text-center">
+        <h1>Видео</h1>
+        <div id="load-info">
+          <p>Идет обработка...</p>
+          <div class="spinner-border" role="status"></div>
+        </div>
+        <div id="video-view" hidden>
+          <button id="download-json" type="button" class="btn btn-success">Скачать точки</button>
+          <a id="download-json-href" hidden></a>
+          <div class="row">
+            <div class="col-sm">
+              <button id="prevFrameBtn" type="button" class="btn btn-primary">Пред. Кадр</button>
+            </div>
+            <div class="col-sm">
+              <p id="frames-count-text">[0/0]</p>
+            </div>
+            <div class="col-sm">
+              <button id="nextFrameBtn" type="button" class="btn btn-primary">След. Кадр</button>
+            </div>
+          </div>
+          <!-- <button id="prevFrameBtn" type="button" class="btn btn-primary">Пред. Кадр</button>
+          <p id="frames-count-text"></p>
+          <button id="nextFrameBtn" type="button" class="btn btn-primary">След. Кадр</button> -->
+          <img id="frames-view" alt="frames-view" />
+        </div>
+
+        </div>
+    </div>
+
+    <script src="/static/bootstrap.bundle.min.js"></script>
+    <script>
+      (async () => {
+        let loadView = document.getElementById("load-info")
+        let videoId = location.pathname.split('/')[2]
+        let videoInfoResp = await fetch(
+          '/api/videos/' + videoId + '/info',
+          {method:'get'})
+        let videoInfo = await videoInfoResp.json()
+        loadView.hidden = true
+
+        let videoView = document.getElementById('video-view')
+        let framesView = document.getElementById("frames-view")
+        let framesCountText = document.getElementById("frames-count-text")
+        
+        // framesView.src = 'data:image/jpeg;base64,'
+        //   + videoInfo['images'][0]
+
+        let currentFrame = 1
+        let maxFrames = videoInfo['images'].length
+
+        setImgage(videoInfo['images'][0])
+        renderFramesInfos()
+        document.getElementById('prevFrameBtn').onclick = prevFrame
+        document.getElementById('nextFrameBtn').onclick = nextFrame
+
+
+        document.getElementById('download-json').onclick = downloadKeypoins
+        let downloadJsonHref = document.getElementById('download-json-href')
+        let text = JSON.stringify(videoInfo['keypoints'])
+        let name = videoId.replace('.', '_') + '_keypoints.json'
+        downloadJsonHref.href = URL.createObjectURL( new Blob([text], { type:`text/json` }) );
+        downloadJsonHref.download = name;
+
+        videoView.hidden = false
+
+        function nextFrame() {
+          if(currentFrame < maxFrames){
+            currentFrame++
+            let img = videoInfo['images'][currentFrame - 1]
+            setImgage(img)
+            renderFramesInfos()
+          }
+        }
+
+        function prevFrame() {
+          if(currentFrame > 1){
+            currentFrame--
+            let img = videoInfo['images'][currentFrame - 1]
+            setImgage(img)
+            renderFramesInfos()
+          }
+        }
+
+        function setImgage(img) {
+          framesView.src = 'data:image/jpeg;base64,'
+            + img
+        }
+
+        function renderFramesInfos(){
+          framesCountText.innerText = 
+            '[' + currentFrame + '/' + maxFrames + ']'
+        }
+
+        function downloadKeypoins(){
+          downloadJsonHref.click();
+        }
+
+      })();
+    </script>
+  </body>
+</html>
