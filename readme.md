@@ -1,0 +1,5 @@
+# Запуск через docker
+```
+$ docker build --tag open-mocapy .
+$ docker run -d --publish 5000:5000 --name open-mocapy open-mocapy
+```

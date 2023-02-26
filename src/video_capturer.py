@@ -25,6 +25,7 @@ class VideoCapturer:
         self.out_keypoints = None
 
         self.logger = logger
+        self.progress_monitor = None
 
     def Capture(self, video_path: str):
         cap = cv2.VideoCapture(video_path)
@@ -53,6 +54,9 @@ class VideoCapturer:
                 break
             
             current_frame = current_frame + 1
+
+            self.__updateMonitor__(current_frame, self.frames_count)
+
             self.logger.info(
                 'Proccess frame [%d/%d]',
                 current_frame,
@@ -92,3 +96,8 @@ class VideoCapturer:
 
         cap.release()
         cv2.destroyAllWindows()
+
+    def __updateMonitor__(self, curr_count, max_count):
+        if self.progress_monitor is not None:
+            self.progress_monitor.curr_count = curr_count
+            self.progress_monitor.max_count = max_count

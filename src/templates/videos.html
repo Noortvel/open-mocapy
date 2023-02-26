@@ -11,6 +11,7 @@
         <h1>Видео</h1>
         <div id="load-info">
           <p>Идет обработка...</p>
+          <p id="load-frames-info">-</p>
           <div class="spinner-border" role="status"></div>
         </div>
         <div id="video-view" hidden>
@@ -27,9 +28,6 @@
               <button id="nextFrameBtn" type="button" class="btn btn-primary">След. Кадр</button>
             </div>
           </div>
-          <!-- <button id="prevFrameBtn" type="button" class="btn btn-primary">Пред. Кадр</button>
-          <p id="frames-count-text"></p>
-          <button id="nextFrameBtn" type="button" class="btn btn-primary">След. Кадр</button> -->
           <img id="frames-view" alt="frames-view" />
         </div>
 
@@ -41,18 +39,29 @@
       (async () => {
         let loadView = document.getElementById("load-info")
         let videoId = location.pathname.split('/')[2]
+
+        let checkStateIntervalId = window.setInterval(checkState, 1000);
+        let loadFramesInfo = document.getElementById('load-frames-info')
+        async function checkState(){
+          let url = '/api/videos/' + videoId + '/progress'
+          let resp = await fetch(url, {method:'get'})
+          let obj = await resp.json()
+          let objStr = obj['current'] + '/' + obj['max']
+          console.log(objStr)
+          loadFramesInfo.innerText = objStr
+        }
+
         let videoInfoResp = await fetch(
           '/api/videos/' + videoId + '/info',
           {method:'get'})
         let videoInfo = await videoInfoResp.json()
+        clearInterval(checkStateIntervalId)
         loadView.hidden = true
-
+        
         let videoView = document.getElementById('video-view')
         let framesView = document.getElementById("frames-view")
         let framesCountText = document.getElementById("frames-count-text")
-        
-        // framesView.src = 'data:image/jpeg;base64,'
-        //   + videoInfo['images'][0]
+
 
         let currentFrame = 1
         let maxFrames = videoInfo['images'].length

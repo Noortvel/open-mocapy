@@ -2,10 +2,11 @@ import cv2
 import base64
 from video_capturer import VideoCapturer
 import draw_helper
+from progress_monitor import ProgressMonitor
 
 
 class VideoCaptureService:
-    def __init__(self, logger):
+    def __init__(self, logger, monitors_collection):
         self.video_root_path = 'uploads/'
         rpath = 'src/'
         yolo_path = rpath + 'models/yolov5m.onnx'
@@ -13,9 +14,12 @@ class VideoCaptureService:
         self.capturer = VideoCapturer(yolo_path, hr_path, logger)
         self.skeleton_base64images = []
         self.keypoints = None
+        self.monitors_collection = monitors_collection
     
     def capture(self, video_id: str):
         full_path = self.video_root_path + video_id
+        self.capturer.progress_monitor = ProgressMonitor(video_id)
+        self.monitors_collection[video_id] = self.capturer.progress_monitor
         self.capturer.Capture(full_path)
 
         for i in range(self.capturer.frames_count):
