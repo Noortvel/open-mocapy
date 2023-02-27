@@ -7,6 +7,7 @@ from to_box_transformer import ToBoxTransformer
 from after_box_transformer import AfterBoxTransformer
 from to_pose_transformer import ToPoseTransformer
 from cv_image_helpers import *
+import os.path
 
 
 class VideoCapturer:
@@ -28,6 +29,11 @@ class VideoCapturer:
         self.progress_monitor = None
 
     def Capture(self, video_path: str):
+
+        self.logger.info("Path: '%s'", video_path)
+        if os.path.isfile(video_path):
+            self.logger.info("Path exists: '%s'", video_path)
+
         cap = cv2.VideoCapture(video_path)
 
         self.captureWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -45,12 +51,13 @@ class VideoCapturer:
         # poseModelPath = "models/litehrnet_30_coco_384x288.onnx"
 
         if not cap.isOpened():
-            print("Error opening video stream or file")
+            self.logger.info("Error opening video stream or file")
 
         current_frame = 0
         while cap.isOpened():
             ret, source_img = cap.read()
             if not ret:
+                self.logger.info("Failed to read frame")
                 break
             
             current_frame = current_frame + 1
@@ -89,13 +96,8 @@ class VideoCapturer:
 
             self.out_keypoints.append(fitted_keypoints)
 
-            # final_img = draw_helper.Draw(source_img, self.out_keypoints)
-            # cv2.imshow('Frame', final_img)
-            # cv2.waitKey()
-
 
         cap.release()
-        cv2.destroyAllWindows()
 
     def __updateMonitor__(self, curr_count, max_count):
         if self.progress_monitor is not None:

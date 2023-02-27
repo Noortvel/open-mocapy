@@ -7,8 +7,8 @@ from progress_monitor import ProgressMonitor
 
 class VideoCaptureService:
     def __init__(self, logger, monitors_collection):
-        self.video_root_path = 'uploads/'
-        rpath = 'src/'
+        self.video_root_path = '/app/uploads/'
+        rpath = './'
         yolo_path = rpath + 'models/yolov5m.onnx'
         hr_path = rpath + 'models/litehrnet_30_coco_384x288.onnx'
         self.capturer = VideoCapturer(yolo_path, hr_path, logger)
@@ -17,10 +17,9 @@ class VideoCaptureService:
         self.monitors_collection = monitors_collection
     
     def capture(self, video_id: str):
-        full_path = self.video_root_path + video_id
         self.capturer.progress_monitor = ProgressMonitor(video_id)
         self.monitors_collection[video_id] = self.capturer.progress_monitor
-        self.capturer.Capture(full_path)
+        self.capturer.Capture(self.video_root_path + video_id)
 
         for i in range(self.capturer.frames_count):
             frame = self.capturer.out_frames[i]
